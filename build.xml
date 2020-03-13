@@ -146,8 +146,8 @@
 
 	<!-- Starts again server from odoo.service -->
 	<target name="start-service">
-		<!-- Stops existing running server process -->
-		<exec executable="sudo">
+		<!-- Starts server process -->
+		<exec executable="sudo" failonerror="true">
 			<arg value="systemctl"/>
 			<arg value="start"/>
 			<arg value="odoo"/>
@@ -159,6 +159,20 @@
 		</exec>
 	</target>
 
+	<!-- Restarts again server from odoo.service -->
+	<target name="restart-service">
+		<!-- Restarts server process -->
+		<exec executable="sudo" failonerror="true">
+			<arg value="systemctl"/>
+			<arg value="restart"/>
+			<arg value="odoo"/>
+		</exec>
+		<!-- Prints service status -->
+		<exec executable="systemctl">
+			<arg value="status"/>
+			<arg value="${run.service.name}"/>
+		</exec>
+	</target>
 
 
 
@@ -219,6 +233,7 @@
 
 		<antcall target="start-service"/>
 		<antcall target="test-if-running"/>
+		<antcall target="restart-service"/>
 
 		<if>
 			<isset property="server.run.fail"/>
