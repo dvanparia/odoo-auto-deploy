@@ -68,10 +68,10 @@
 
 	<!-- Run test on server if http response is positive or not -->
 	<target name="test-if-running">
-		<waitfor maxwait="10" maxwaitunit="second"
-                checkevery="100" checkeveryunit="millisecond"
+		<waitfor maxwait="${run.max.wait}" maxwaitunit="second"
+                checkevery="1000" checkeveryunit="millisecond"
 				timeoutproperty="server.run.fail">
-				<http url="${run.domain}:${run.xmlrpc.port}"/>
+				<http url="${run.domain}"/>
     	</waitfor>
 			<if>
 				<not><isset property="server.run.fail"/></not>
