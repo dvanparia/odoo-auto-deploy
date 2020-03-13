@@ -19,7 +19,7 @@
 		<echo>Upgrading odoo modules</echo>
 		<!-- Upgrading modules and push process in background for further build execution -->
 		<forget>
-			<exec executable="./odoo-bin" failonerror="true">
+			<exec executable="./odoo-bin" failonerror="true" dir="${run.server.dir}">
 				<arg value="--xmlrpc-port"/>
 				<arg value="${run.xmlrpc.port}"/>
 				<arg value="--addons-path"/>
