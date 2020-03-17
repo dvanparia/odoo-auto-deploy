@@ -82,7 +82,8 @@
 
 	<!-- Execution of Git Pull on custom addons modules -->
 	<target name="git-pull" depends="pre-executions, db-backup">
-		<exec executable="git" dir="${dir.addons}" failonerror="true">
+		<exec executable="sudo" dir="${dir.addons}" failonerror="true">
+			<arg value="git"/>
 			<arg value="pull"/>
 		</exec>
 	</target>
