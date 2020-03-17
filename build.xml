@@ -35,7 +35,7 @@
 		<!-- waits until the modules will load from http status code -->
 		<waitfor maxwait="${run.max.wait}" maxwaitunit="second"
                 checkevery="1000" checkeveryunit="millisecond">
-        	<http url="${run.domain}:${run.xmlrpc.port}"/>
+        	<http url="${run.domain}"/>
     	</waitfor>
 		<!-- Search for error in logs and store matching counts in property -->
 		<exec executable="grep" outputproperty="run.error.log">
@@ -49,14 +49,14 @@
 		<condition property="server.running.new">
 			<and>
 				<equals arg1="${run.error.log}" arg2="0"/>
-				<http url="${run.domain}:${run.xmlrpc.port}"/>
+				<http url="${run.domain}"/>
 			</and>
 		</condition>
 		<echo>Server Upgrades Successfully: ${server.running.new}</echo>
 		<!-- starts service or revert back to previous state -->
 		<if>
     		<isset property="server.running.new"/>
-    		<then>
+			<then>
 				<antcall target="start-service"/>
     		</then>
 			<else>
