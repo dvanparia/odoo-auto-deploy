@@ -189,7 +189,6 @@
 			<arg value="HEAD@{1}"/>
 		</exec>
 
-		
 		<shellscript shell="bash">
 			echo " Terminating running database sessions"
 			psql -U ${db.user} -d postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${db.name}';"
@@ -199,10 +198,7 @@
 			echo "Renaming database ${db.name} to ${db.name}_${datetime}"
 			psql -U ${db.user} -d postgres -c "ALTER DATABASE ${db.name} RENAME TO ${db.name}_${datetime};"
 		</shellscript>
-
-
-
-
+		
 		<exec executable="createdb" failonerror="true">
 			<env key="PGPASSWORD" value="${db.password}"/>
 			<arg value="-O"/>
