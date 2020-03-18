@@ -198,7 +198,7 @@
 			echo "Renaming database ${db.name} to ${db.name}_${datetime}"
 			psql -U ${db.user} -d postgres -c "ALTER DATABASE ${db.name} RENAME TO ${db.name}_${datetime};"
 		</shellscript>
-		
+
 		<exec executable="createdb" failonerror="true">
 			<env key="PGPASSWORD" value="${db.password}"/>
 			<arg value="-O"/>
@@ -211,7 +211,6 @@
 			<arg value="${db.port}"/>
 			<arg value="${db.name}"/>
 		</exec>
-<!--		<echo>${error.db.create}</echo>-->
 
 		<exec executable="psql">
 			<env key="PGPASSWORD" value="${db.password}"/>
