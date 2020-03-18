@@ -2,7 +2,7 @@
 
 <project name="Odoo Auto-Deploy" default="odoo-upgrade">
 
-	
+
 	<!-- importing build properties file and ant.contrib library -->
 	<property file = "build.properties"/>
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
@@ -161,6 +161,7 @@
 		</exec>
 	</target>
 
+
 	<!-- Restarts again server from odoo.service -->
 	<target name="restart-service">
 		<!-- Restarts server process -->
@@ -188,8 +189,7 @@
 			<arg value="HEAD@{1}"/>
 		</exec>
 
-
-
+		
 		<shellscript shell="bash">
 			echo " Terminating running database sessions"
 			psql -U ${db.user} -d postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${db.name}';"
