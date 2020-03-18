@@ -2,6 +2,7 @@
 
 <project name="Odoo Auto-Deploy" default="odoo-upgrade">
 
+	
 	<!-- importing build properties file and ant.contrib library -->
 	<property file = "build.properties"/>
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
