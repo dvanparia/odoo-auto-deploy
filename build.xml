@@ -227,7 +227,6 @@
 			<arg value="${db.name}"/>
 		</exec>
 
-
 		<antcall target="start-service"/>
 		<antcall target="test-if-running"/>
 		<antcall target="restart-service"/>
