@@ -15,6 +15,7 @@
 		</tstamp>
 
 
+	
 	<!-- Upgrade modules and checks if any error while upgrading -->
 	<target name="odoo-upgrade" depends="git-pull">
 		<echo>Upgrading odoo modules</echo>
