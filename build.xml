@@ -133,6 +133,7 @@
 	</target>
 
 
+	
 	<!-- Delete older database and log backups -->
 	<target name="db-housekeeping">
 		<tstamp>
@@ -154,7 +155,7 @@
 
 
 
-	
+
 	<!-- Starts again server from odoo.service -->
 	<target name="start-service">
 		<!-- Starts server process -->
