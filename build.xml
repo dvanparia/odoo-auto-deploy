@@ -93,8 +93,7 @@
 		</exec>
 	</target>
 
-
-
+	
 	<!-- Performing necessary tasks to execute before starting the upgrade of modules -->
 	<target name="pre-executions">
 		<!-- Stops existing running server process -->
