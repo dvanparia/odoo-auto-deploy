@@ -16,7 +16,6 @@
 
 
 
-
 	<!-- Upgrade modules and checks if any error while upgrading -->
 	<target name="odoo-upgrade" depends="git-pull">
 		<echo>Upgrading odoo modules</echo>
@@ -69,6 +68,7 @@
 	</target>
 
 
+
 	<!-- Run test on server if http response is positive or not -->
 	<target name="test-if-running">
 		<waitfor maxwait="${run.max.wait}" maxwaitunit="second"
@@ -81,6 +81,7 @@
 				<then><echo>Server starts successfully</echo></then>
 			</if>
 	</target>
+
 
 
 
