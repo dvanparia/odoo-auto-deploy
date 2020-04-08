@@ -1,4 +1,3 @@
-
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project name="Odoo Auto-Deploy" default="odoo-upgrade">
@@ -16,30 +15,24 @@
 		</tstamp>
 
 
-
 	<!-- Upgrade modules and checks if any error while upgrading -->
 	<target name="odoo-upgrade" depends="git-pull">
 		<echo>Upgrading odoo modules</echo>
 		<!-- Upgrading modules and push process in background for further build execution -->
 		<forget>
-			<exec executable="./odoo-bin" failonerror="true" dir="${run.server.dir}">
-				<arg value="--xmlrpc-port"/>
-				<arg value="${run.xmlrpc.port}"/>
-				<arg value="--addons-path"/>
-				<arg value="${run.addons.path}"/>
-				<arg value="-d"/>
-				<arg value="${db.name}"/>
-				<arg value="-u"/>
-				<arg value="${run.modules}"/>
-				<arg value="--logfile"/>
-				<arg value="${run.log.dir}/${datetime}.log"/>
+			<exec executable="sudo" failonerror="true" dir="${run.server.dir}">
+				<arg line="su ${db.user} -s /bin/bash -c './odoo-bin
+						--xmlrpc-port ${run.xmlrpc.port} --addons-path ${run.addons.path}
+						-d ${db.name} -u ${run.modules} --logfile ${run.log.dir}/${datetime}.log'"/>
 			</exec>
 		</forget>
+
 		<!-- waits until the modules will load from http status code -->
 		<waitfor maxwait="${run.max.wait}" maxwaitunit="second"
                 checkevery="1000" checkeveryunit="millisecond">
         	<http url="${run.domain}"/>
     	</waitfor>
+
 		<!-- Search for error in logs and store matching counts in property -->
 		<exec executable="grep" outputproperty="run.error.log">
 			<arg value="-c"/>
@@ -48,6 +41,7 @@
 			<arg value="'[0-9]+\s(ERROR|CRITICAL)\s'"/>
 			<arg value="${run.log.dir}/${datetime}.log"/>
 		</exec>
+
 		<!-- true if http response is positive and 0 errors found in log -->
 		<condition property="server.running.new">
 			<and>
@@ -55,35 +49,37 @@
 				<http url="${run.domain}"/>
 			</and>
 		</condition>
-		<echo>Server Upgrades Successfully: ${server.running.new}</echo>
+
 		<!-- starts service or revert back to previous state -->
 		<if>
     		<isset property="server.running.new"/>
 			<then>
-				<antcall target="start-service"/>
+				<echo>Server Upgrades Successfully: ${server.running.new}</echo>
+				<antcall target="restart-service"/>
     		</then>
 			<else>
+				<echo>Server Upgrades Successfully: False</echo>
 				<antcall target="revert-back"/>
 			</else>
 		</if>
 	</target>
 
 
-
 	<!-- Run test on server if http response is positive or not -->
 	<target name="test-if-running">
-		<waitfor maxwait="${run.max.wait}" maxwaitunit="second"
-                checkevery="1000" checkeveryunit="millisecond"
-				timeoutproperty="server.run.fail">
-				<http url="${run.domain}"/>
-    	</waitfor>
-			<if>
-				<not><isset property="server.run.fail"/></not>
-				<then><echo>Server starts successfully</echo></then>
-			</if>
+
+		<condition property="server.run.fail">
+			<isreachable url="${run.domain}"/>
+		</condition>
+
+		<if>
+			<isset property="server.run.fail"/>
+			<then><echo>Server starts successfully</echo></then>
+			<else>
+				<echo>Server is not Responding</echo>
+			</else>
+		</if>
 	</target>
-
-
 
 
 	<!-- Execution of Git Pull on custom addons modules -->
@@ -96,8 +92,6 @@
 	</target>
 
 
-
-
 	<!-- Performing necessary tasks to execute before starting the upgrade of modules -->
 	<target name="pre-executions">
 		<!-- Stops existing running server process -->
@@ -107,14 +101,13 @@
 			<arg value="stop"/>
 			<arg value="${run.service.name}"/>
 		</exec>
+
 		<!-- Prints service status -->
 		<exec executable="systemctl">
 			<arg value="status"/>
 			<arg value="${run.service.name}"/>
 		</exec>
 	</target>
-
-
 
 
 	<!-- Backup the postgres database in desired folder -->
@@ -137,16 +130,17 @@
 	</target>
 
 
-
-
 	<!-- Delete older database and log backups -->
 	<target name="db-housekeeping">
 		<tstamp>
-			<format property="last.month" pattern="MM/dd/yyyy hh:mm aa" locale="en,IN" offset="-30" unit="day"/>
+			<format property="last.month" pattern="MM/dd/yyyy hh:mm aa"
+					locale="en,IN" offset="-30" unit="day"/>
 		</tstamp>
+
 		<echo>Deleting Older Database and log backups before ${last.month} if exist</echo>
 		<mkdir dir="${db.backup.dir}"/>
 		<mkdir dir="${run.log.dir}"/>
+
 		<delete verbose="true">
 			<fileset dir="${db.backup.dir}">
 				<date datetime="${last.month}" when="before"/>
@@ -155,25 +149,6 @@
 				<date datetime="${last.month}" when="before"/>
 			</fileset>
 		</delete>
-	</target>
-
-
-
-
-
-	<!-- Starts again server from odoo.service -->
-	<target name="start-service">
-		<!-- Starts server process -->
-		<exec executable="sudo" failonerror="true">
-			<arg value="systemctl"/>
-			<arg value="start"/>
-			<arg value="odoo"/>
-		</exec>
-		<!-- Prints service status -->
-		<exec executable="systemctl">
-			<arg value="status"/>
-			<arg value="${run.service.name}"/>
-		</exec>
 	</target>
 
 
@@ -193,8 +168,6 @@
 	</target>
 
 
-
-
 	<!-- Revert back to previous server state if upgrade failed in any situation -->
 	<target name="revert-back">
 		<echo>Upgrade failed, reverting back to previous state.</echo>
@@ -207,12 +180,12 @@
 
 		<shellscript shell="bash">
 			echo " Terminating running database sessions"
-			psql -U ${db.user} -d postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${db.name}';"
+			su ${db.user} -s /bin/bash -c "psql -U ${db.user} -d postgres -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '${db.name}';\""
 		</shellscript>
 
 		<shellscript shell="bash">
 			echo "Renaming database ${db.name} to ${db.name}_${datetime}"
-			psql -U ${db.user} -d postgres -c "ALTER DATABASE ${db.name} RENAME TO ${db.name}_${datetime};"
+			su ${db.user} -s /bin/bash -c "psql -U ${db.user} -d postgres -c \"ALTER DATABASE ${db.name} RENAME TO ${db.name}_${datetime};\""
 		</shellscript>
 
 		<exec executable="createdb" failonerror="true">
@@ -228,25 +201,14 @@
 			<arg value="${db.name}"/>
 		</exec>
 
+		<shellscript shell="bash">
+			echo "Restoring database ${db.name} from dump backup file"
+			su ${db.user} -s /bin/bash -c "PGPASSWORD=${db.password} psql -f ${db.backup.dir}/${datetime}_${db.name}.dump -o ${db.restore.log} -U ${db.user} -h ${db.host} -p ${db.port} ${db.name}"
+			echo "Restoring log is stored in ${db.restore.log}"
+		</shellscript>
 
-		<exec executable="psql">
-			<env key="PGPASSWORD" value="${db.password}"/>
-			<arg value="-f"/>
-			<arg value="${db.backup.dir}/${datetime}_${db.name}.dump"/>
-			<arg value="-o"/>
-			<arg value="${db.restore.log}"/>
-			<arg value="-U"/>
-			<arg value="${db.user}"/>
-			<arg value="-h"/>
-			<arg value="${db.host}"/>
-			<arg value="-p"/>
-			<arg value="${db.port}"/>
-			<arg value="${db.name}"/>
-		</exec>
-
-		<antcall target="start-service"/>
-		<antcall target="test-if-running"/>
 		<antcall target="restart-service"/>
+		<antcall target="test-if-running"/>
 
 		<if>
 			<isset property="server.run.fail"/>
@@ -257,6 +219,6 @@
 					<fail message="Odoo upgrade is failed, but server is running as it's previous state."/>
 				</else>
 		</if>
+
 	</target>
 </project>
-
