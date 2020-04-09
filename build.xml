@@ -134,7 +134,7 @@
 	<target name="db-housekeeping">
 		<tstamp>
 			<format property="last.month" pattern="MM/dd/yyyy hh:mm aa"
-					locale="en,IN" offset="-30" unit="day"/>
+					locale="en,IN" offset="-${db.keep.backup}" unit="day"/>
 		</tstamp>
 
 		<echo>Deleting Older Database and log backups before ${last.month} if exist</echo>
@@ -203,7 +203,7 @@
 
 		<shellscript shell="bash">
 			echo "Restoring database ${db.name} from dump backup file"
-			su ${db.user} -s /bin/bash -c "PGPASSWORD=${db.password} psql -f ${db.backup.dir}/${datetime}_${db.name}.dump -o ${db.restore.log} -U ${db.user} -h ${db.host} -p ${db.port} ${db.name}"
+			su postgres -s /bin/bash -c "PGPASSWORD=${db.password} psql -f ${db.backup.dir}/${datetime}_${db.name}.dump -o ${db.restore.log} -U ${db.user} -h ${db.host} -p ${db.port} ${db.name}"
 			echo "Restoring log is stored in ${db.restore.log}"
 		</shellscript>
 
