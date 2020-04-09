@@ -21,7 +21,7 @@
 		<!-- Upgrading modules and push process in background for further build execution -->
 		<forget>
 			<exec executable="sudo" failonerror="true" dir="${run.server.dir}">
-				<arg line="su ${db.user} -s /bin/bash -c '.odoo-bin
+				<arg line="su ${db.user} -s /bin/bash -c './odoo-bin
 						--xmlrpc-port ${run.xmlrpc.port} --addons-path ${run.addons.path}
 						-d ${db.name} -u ${run.modules} --logfile ${run.log.dir}/${datetime}.log'"/>
 			</exec>
