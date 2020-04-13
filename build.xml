@@ -33,6 +33,10 @@
         	<http url="${run.domain}"/>
     	</waitfor>
 
+		<!-- Print odoo upgrade logs on the console -->
+		<loadfile property="log.content" srcFile="${run.log.dir}/${datetime}.log"/>
+		<echo>${log.content}</echo>
+
 		<!-- Search for error in logs and store matching counts in property -->
 		<exec executable="grep" outputproperty="run.error.log">
 			<arg value="-c"/>
@@ -55,7 +59,7 @@
     		<isset property="server.running.new"/>
 			<then>
 				<echo>Server Upgrades Successfully: ${server.running.new}</echo>
-				<antcall target="restart-service"/>
+				<antcall target="start-service"/>
     		</then>
 			<else>
 				<echo>Server Upgrades Successfully: False</echo>
@@ -158,6 +162,22 @@
 		<exec executable="sudo" failonerror="true">
 			<arg value="systemctl"/>
 			<arg value="restart"/>
+			<arg value="odoo"/>
+		</exec>
+		<!-- Prints service status -->
+		<exec executable="systemctl">
+			<arg value="status"/>
+			<arg value="${run.service.name}"/>
+		</exec>
+	</target>
+
+
+	<!-- Starts again server from odoo.service -->
+	<target name="start-service">
+		<!-- Starts server process -->
+		<exec executable="sudo" failonerror="true">
+			<arg value="systemctl"/>
+			<arg value="start"/>
 			<arg value="odoo"/>
 		</exec>
 		<!-- Prints service status -->
