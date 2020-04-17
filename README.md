@@ -8,7 +8,20 @@ Setup GIT account and branch
 
 Create boot script (./odoo-bin as service)
 
-User which will run the script should has root privileges and must be in sudoers file
+Install `ant`, `ant-contrib` and `jenkins`
+
+Change **jenkins** user to **root** user
+
+    Make change in file /etc/default/jenkins
+    $JENKINS_USER = "root"
+    
+Change ownership of following files to `root:root`
+
+    /var/chache/jenkins
+    /var/lib/jenkins
+    /var/log/jenkins
+    
+Give **root** permissions to **odoo directory** for storing **backups** and taking **git pull**
 
 
 
