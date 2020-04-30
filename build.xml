@@ -23,7 +23,7 @@
 			<exec executable="sudo" failonerror="true" dir="${run.server.dir}">
 				<arg line="su ${db.user} -s /bin/bash -c './odoo-bin
 						--xmlrpc-port ${run.xmlrpc.port} --addons-path ${run.addons.path}
-						-d ${db.name} -u ${run.modules} --logfile ${run.log.dir}/${datetime}.log'"/>
+						-d ${db.name} ${upgrading_params} --logfile ${run.log.dir}/${datetime}.log'"/>
 			</exec>
 		</forget>
 
@@ -136,22 +136,24 @@
 
 	<!-- Delete older database and log backups -->
 	<target name="db-housekeeping">
-		<tstamp>
-			<format property="last.month" pattern="MM/dd/yyyy hh:mm aa"
-					locale="en,IN" offset="-${db.keep.backup}" unit="day"/>
-		</tstamp>
 
-		<echo>Deleting Older Database and log backups before ${last.month} if exist</echo>
+		<echo>Deleting Older Database and log backups if exist</echo>
 		<mkdir dir="${db.backup.dir}"/>
 		<mkdir dir="${run.log.dir}"/>
 
 		<delete verbose="true">
-			<fileset dir="${db.backup.dir}">
-				<date datetime="${last.month}" when="before"/>
-			</fileset>
-			<fileset dir="${run.log.dir}">
-				<date datetime="${last.month}" when="before"/>
-			</fileset>
+			<allbutlast count="${db.keep.backup}">
+        		<sort>
+            		<date/>
+					<fileset dir="${db.backup.dir}"/>
+				</sort>
+			</allbutlast>
+			<allbutlast count="${db.keep.backup}">
+        		<sort>
+            		<date/>
+					<fileset dir="${run.log.dir}"/>
+				</sort>
+			</allbutlast>
 		</delete>
 	</target>
 
