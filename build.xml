@@ -225,7 +225,7 @@
 
 		<shellscript shell="bash">
 			echo "Restoring database ${db.name} from dump backup file"
-			su postgres -s /bin/bash -c "psql -f ${db.backup.dir}/${datetime}_${db.name}.dump -o ${db.restore.log} ${db.name}"
+			su postgres -s /bin/bash -c "psql -f ${db.backup.dir}/${datetime}_${db.name}.dump ${db.name}"
 			echo "Restoring log is stored in ${db.restore.log}"
 		</shellscript>
 
