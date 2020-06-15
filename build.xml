@@ -137,23 +137,34 @@
 	<!-- Delete older database and log backups -->
 	<target name="db-housekeeping">
 
-		<echo>Deleting Older Database and log backups if exist</echo>
+		<tstamp>
+			<format property="interval" pattern="MM/dd/yyyy hh:mm aa" locale="en,IN" offset="-${db.keep.backup}" unit="day"/>
+		</tstamp>
+		<tstamp>
+			<format property="today" pattern="MM/dd/yyyy hh:mm aa" locale="en,IN" offset="0" unit="day"/>
+		</tstamp>
+		<echo>Deleting Older Database and log backups before ${interval} if exist</echo>
 		<mkdir dir="${db.backup.dir}"/>
 		<mkdir dir="${run.log.dir}"/>
-
 		<delete verbose="true">
-			<allbutlast count="${db.keep.backup}">
-        		<sort>
-            		<date/>
+			<fileset dir="${db.backup.dir}">
+				<date datetime="${interval}" when="before"/>
+			</fileset>
+			<fileset dir="${run.log.dir}">
+				<date datetime="${interval}" when="before"/>
+			</fileset>
+			<allbutfirst>
+				<sort>
+					<date/>
 					<fileset dir="${db.backup.dir}"/>
 				</sort>
-			</allbutlast>
-			<allbutlast count="${db.keep.backup}">
-        		<sort>
-            		<date/>
+			</allbutfirst>
+			<allbutfirst>
+				<sort>
+					<date/>
 					<fileset dir="${run.log.dir}"/>
 				</sort>
-			</allbutlast>
+			</allbutfirst>
 		</delete>
 	</target>
 
