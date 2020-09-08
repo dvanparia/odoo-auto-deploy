@@ -131,6 +131,13 @@
 			<arg value="${db.backup.dir}/${datetime}_${db.name}.dump"/>
 			<arg value="${db.name}"/>
 		</exec>
+
+		<!-- Copy filestore backup -->
+		<exec failifexecutionfails="true" failonerror="true" executable="zip">
+			<arg value="-r"/>
+			<arg value="${filestore.backup.dir}/${datetime}_${db.name}.zip"/>
+			<arg value="${filestore.dir}"/>
+		</exec>
 	</target>
 
 
@@ -146,11 +153,15 @@
 		<echo>Deleting Older Database and log backups before ${interval} if exist</echo>
 		<mkdir dir="${db.backup.dir}"/>
 		<mkdir dir="${run.log.dir}"/>
+		<mkdir dir="${filestore.backup.dir}"/>
 		<delete verbose="true">
 			<fileset dir="${db.backup.dir}">
 				<date datetime="${interval}" when="before"/>
 			</fileset>
 			<fileset dir="${run.log.dir}">
+				<date datetime="${interval}" when="before"/>
+			</fileset>
+			<fileset dir="${filestore.backup.dir}">
 				<date datetime="${interval}" when="before"/>
 			</fileset>
 			<allbutfirst>
@@ -163,6 +174,12 @@
 				<sort>
 					<date/>
 					<fileset dir="${run.log.dir}"/>
+				</sort>
+			</allbutfirst>
+			<allbutfirst>
+				<sort>
+					<date/>
+					<fileset dir="${filestore.backup.dir}"/>
 				</sort>
 			</allbutfirst>
 		</delete>
